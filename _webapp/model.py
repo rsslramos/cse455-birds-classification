@@ -25,7 +25,7 @@ transformations = transforms.Compose([
 
 # Load bird names into a list
 my_file = path + '/names.txt'
-bird_names = [line.strip() for line in open('names.txt')]
+bird_names = [line.strip() for line in open(my_file)]
 
 # Predicts the top 3 birds from an image
 def predict(image):
