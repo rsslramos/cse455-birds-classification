@@ -19,8 +19,8 @@ model.classifier[1] = nn.Linear(num_features, 555)
 path = os.path.dirname(__file__)
 my_file = path + '/model_checkpoint_effnetv2.pt'
 device = torch.device('cpu')
-checkpoint = CPU_Unpickler(my_file).load()
-model.load_state_dict(checkpoint['model_state_dict'], map_location=device)
+checkpoint = torch.load(my_file, map_location=device)
+model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
 # Define transformations
