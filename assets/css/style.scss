@@ -1,0 +1,14 @@
+--- 
+--- 
+@import "{{ site.theme }}";
+
+.center-image {
+    margin: 0 auto;
+    display: block;
+}
+
+.scroll-box {
+    // padding-bottom: 1em; 
+    height: 500px;
+    overflow-y: scroll;
+}

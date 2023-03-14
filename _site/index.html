@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Russel Ramos - CSE 455 Final Project | CSE 455 Final Project Presentation</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="Russel Ramos - CSE 455 Final Project" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="CSE 455 Final Project Presentation" />
+<meta property="og:description" content="CSE 455 Final Project Presentation" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="Russel Ramos - CSE 455 Final Project" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Russel Ramos - CSE 455 Final Project" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","description":"CSE 455 Final Project Presentation","headline":"Russel Ramos - CSE 455 Final Project","name":"Russel Ramos - CSE 455 Final Project","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/assets/css/style.css?v=a577de4b18e014a3cef0a5eea58829a6bf0dfa3a">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <a id="skip-to-content" href="#content">Skip to the content.</a>
+
+    <header class="page-header" role="banner">
+      <h1 class="project-name">Birds Classification</h1>
+      <h2 class="project-tagline">CSE 455 Final Project Presentation</h2>
+      
+        <a href="https://github.com/rsslramos/cse455-birds-classification" class="btn">View on GitHub</a>
+      
+      
+    </header>
+
+    <main id="content" class="main-content" role="main">
+      <h1 id="problem-description">Problem Description</h1>
+
+<p>Just as humans have evolved into different species, birds have grown alongside them over millions of years. Adapting to changing environments and becoming one of the most diverse groups of animals on the planet, there are over 5,000 different species of birds. <strong>The goal of this project is to train a machine learning model that can accurately predict the species of a birds based on its features present in an image.</strong> Through this, I am hoping to make these majestic flying creatures seem a bit more familiar.</p>
+
+<h1 id="previous-work">Previous Work</h1>
+
+<p>A lot of this project is based upon existing machine learning frameworks such as <a href="https://pytorch.org/">PyTorch</a>. PyTorch’s flexibility and ease of use makes it a great entry way into building and training many different types of neural network architectures, whether it be convolutional or recurrent neural networks. As for the scope of this project, I found the CNN models that PyTorch provides more than adequate for the purposes of this project.</p>
+
+<p><a href="https://arxiv.org/pdf/1512.03385.pdf">ResNet</a>, short for Residual Network, is a deep neural network architure that was <a href="https://arxiv.org/pdf/1512.03385.pdf">developed and described by researches at Microsoft Research</a>. One of the key innovations of the architecture is the use of residual connections, allowing information to be directly passed from one layer to another and bypassing intermediate layers. In very deep networks like ResNet, the output of early layers can become too small to be meaningful later on in deeper layers. ResNet’s innovation helps solve this problem by allowing the network to learn more easily in these deeper layers.</p>
+
+<p><a href="https://arxiv.org/abs/2104.00298">EfficientNetV2</a> is another family of deep neural networks that is an extension of the original EfficientNet architecture. It was <a href="https://arxiv.org/abs/2104.00298">introduced and developed by researchers at Google</a>. Just as the name implies, this architecture is able to achieve state-of-the-art performance on tasks such as image classification, all while maintaining great accuracy. EfficientNetV2 ranges from different models: from the small and efficient EfficientNetV2-S to the larger and more powerful EfficientNetV2-L.</p>
+
+<h1 id="datasets">Datasets</h1>
+
+<p><a href="https://www.kaggle.com/competitions/birds23wi/data">See the dataset here!</a></p>
+
+<p>The dataset used was provided to us by the CSE 455 staff through a Kaggle competition. This dataset contained a training set of over 37,000 images of birds, spanning 555 species. Another 10,000 images are provided to evaluate the model and perform predictions to be submitted on Kaggle. Each training image has its filename and corresponding species numerical ID labeled on a ‘labels.csv’ file. Similarly, each image in the testing set also has its filename in a ‘sample.csv’ file, but with the numerical ID defaulted to 403 for us to change.</p>
+
+<h1 id="approach">Approach</h1>
+
+<p><a href="https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html">PyTorch has a great tutorial on transfer learning which this project can be attributed to</a>.</p>
+
+<h3 id="importing-data">Importing Data</h3>
+
+<p>Getting the dataset to be in a usuable format proved to be a problem in of itself. I needed a way to split the dataset: one part for training and another for validation. This is to help evaluate the network as its training. I created a BirdsDataset class that inherited the Dataset class so that we could make Dataloaders for the data. I made another wrapper Dataset class to help facilitate applying different transformations to the training data and validation data.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">BirdsDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_file</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">annotations</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
+        
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">annotations</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">annotations</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="bp">self</span><span class="p">.</span><span class="n">annotations</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">.</span><span class="n">convert</span><span class="p">(</span><span class="s">"RGB"</span><span class="p">)</span> <span class="c1"># some photos have the alpha channel
+</span>        
+        <span class="n">y_label</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">annotations</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">y_label</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">SplitDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
+        
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">subset</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+        
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">subset</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>To refrain from relying on PyTorch too much and to keep things novel, I also made a Python script to resize all of the images in the dataset. I employed the use of the CV framework we implemented for class. It uses nearest neighbor resizing and interpolation. This script took a little over a day to run for the training images and just a few hours for the test images.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">uwimg</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">make_box_filter</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="p">.</span><span class="n">walk</span><span class="p">(</span><span class="s">'/mnt/c/Users/rsslr/Documents/455/birds/train'</span><span class="p">):</span>
+    <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="nb">file</span><span class="p">)))</span>
+        <span class="n">blur</span> <span class="o">=</span> <span class="n">convolve_image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">resized</span> <span class="o">=</span> <span class="n">nn_resize</span><span class="p">(</span><span class="n">blur</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+        <span class="n">save_image</span><span class="p">(</span><span class="n">resized</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">file</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
+
+        <span class="c1"># cleanup
+</span>        <span class="n">free_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+        <span class="n">free_image</span><span class="p">(</span><span class="n">blur</span><span class="p">)</span>
+        <span class="n">free_image</span><span class="p">(</span><span class="n">resized</span><span class="p">)</span>
+
+<span class="n">free_image</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>At this point, we can start declaring our Dataloaders and applying necessary transformations for our neural network. One of the key transformations is normalization. The models I used were pretrained on ImageNet1k. As such, we normalize around the mean and stddev of the ImageNet dataset to keep things consistent.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">train_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">padding_mode</span><span class="o">=</span><span class="s">'edge'</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+<span class="p">])</span>
+
+<span class="n">test_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+<span class="p">])</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">BirdsDataset</span><span class="p">(</span><span class="n">csv_file</span><span class="o">=</span><span class="s">'/workspace/birds/labels.csv'</span><span class="p">,</span>
+                       <span class="n">root_dir</span><span class="o">=</span><span class="s">'/workspace/birds-resized/train'</span><span class="p">,</span>
+                       <span class="n">transform</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+<span class="n">train_subset</span><span class="p">,</span> <span class="n">test_subset</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">random_split</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="p">[</span><span class="mi">33562</span><span class="p">,</span> <span class="mi">5000</span><span class="p">])</span>
+
+<span class="n">train_set</span> <span class="o">=</span> <span class="n">SplitDataset</span><span class="p">(</span><span class="n">train_subset</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">train_transform</span><span class="p">)</span>
+<span class="n">test_set</span> <span class="o">=</span> <span class="n">SplitDataset</span><span class="p">(</span><span class="n">test_subset</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">test_transform</span><span class="p">)</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">test_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">test_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">dataloaders</span> <span class="o">=</span> <span class="p">{</span><span class="s">'train'</span><span class="p">:</span> <span class="n">train_loader</span><span class="p">,</span> <span class="s">'val'</span><span class="p">:</span> <span class="n">test_loader</span><span class="p">}</span>
+<span class="n">dataset_sizes</span> <span class="o">=</span> <span class="p">{</span><span class="s">'train'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">.</span><span class="n">dataset</span><span class="p">),</span> <span class="s">'val'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_loader</span><span class="p">.</span><span class="n">dataset</span><span class="p">)}</span>
+</code></pre></div></div>
+
+<p>At this point, we can now view our imported data. Here is a sample batch of 32 images. Notice the unusual colors which are a product of normalization.
+<img src="\assets\images\visualize-data.png" alt="Visualized Data" class="center-image" /></p>
+
+<h3 id="defining-the-model">Defining the Model</h3>
+
+<p>For this project, I employed the use of two machine learning architectures: ResNet152 and EfficientNetV2-L.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span> <span class="o">=</span> <span class="n">torchvision</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">resnet152</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s">'ResNet152_Weights.DEFAULT'</span><span class="p">).</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="c1"># OR
+</span><span class="n">model</span> <span class="o">=</span> <span class="n">torchvision</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">efficientnet_v2_l</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s">'EfficientNet_V2_L_Weights.DEFAULT'</span><span class="p">).</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>In order for these models to work with our dataset though, we have to replace the last layer. Since these models were pretrained on ImageNet1k, they are set to have 1000 output features by default. Since our dataset contains 555 different species of birds, we want to set the output features to be 555 instead.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># The following is for EfficientNet. 
+# ResNet is a bit different but they're generally the same process-wise.
+</span><span class="n">num_features</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">in_features</span> 
+<span class="n">model</span><span class="p">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_features</span><span class="p">,</span> <span class="mi">555</span><span class="p">)</span> <span class="c1"># Add our layer with 555 outputs
+</span></code></pre></div></div>
+
+<h3 id="training">Training!</h3>
+
+<p>I used the following training function. It’s adapted from the PyTorch transfer learning tutorial, but it has the same general functionality as the one provided to us from class tutorials.</p>
+
+<div class="language-python scroll-box highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">since</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="n">best_model_wts</span> <span class="o">=</span> <span class="n">copy</span><span class="p">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">state_dict</span><span class="p">())</span>
+    <span class="n">best_acc</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s">/</span><span class="si">{</span><span class="n">num_epochs</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'-'</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># Each epoch has a training and validation phase
+</span>        <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'val'</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s">'train'</span><span class="p">:</span>
+                <span class="n">model</span><span class="p">.</span><span class="n">train</span><span class="p">()</span>  <span class="c1"># Set model to training mode
+</span>            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span><span class="p">.</span><span class="nb">eval</span><span class="p">()</span>   <span class="c1"># Set model to evaluate mode
+</span>
+            <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">running_corrects</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Iterate over data.
+</span>            <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">dataloaders</span><span class="p">[</span><span class="n">phase</span><span class="p">]:</span>
+                <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="c1"># zero the parameter gradients
+</span>                <span class="n">optimizer</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+                <span class="c1"># forward
+</span>                <span class="c1"># track history if only in train
+</span>                <span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">phase</span> <span class="o">==</span> <span class="s">'train'</span><span class="p">):</span>
+                    <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">.</span><span class="nb">float</span><span class="p">())</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+                    <span class="c1"># backward + optimize only if in training phase
+</span>                    <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s">'train'</span><span class="p">:</span>
+                        <span class="n">loss</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+                        <span class="n">optimizer</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+
+                <span class="c1"># statistics
+</span>                <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="p">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">inputs</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">running_corrects</span> <span class="o">+=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">preds</span> <span class="o">==</span> <span class="n">labels</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s">'train'</span><span class="p">:</span>
+                <span class="n">scheduler</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="n">epoch_loss</span> <span class="o">=</span> <span class="n">running_loss</span> <span class="o">/</span> <span class="n">dataset_sizes</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span>
+            <span class="n">epoch_acc</span> <span class="o">=</span> <span class="n">running_corrects</span><span class="p">.</span><span class="n">double</span><span class="p">()</span> <span class="o">/</span> <span class="n">dataset_sizes</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s"> Loss: </span><span class="si">{</span><span class="n">epoch_loss</span><span class="p">:.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="s"> Acc: </span><span class="si">{</span><span class="n">epoch_acc</span><span class="p">:.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+
+            <span class="c1"># deep copy the model
+</span>            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s">'val'</span> <span class="ow">and</span> <span class="n">epoch_acc</span> <span class="o">&gt;</span> <span class="n">best_acc</span><span class="p">:</span>
+                <span class="n">best_acc</span> <span class="o">=</span> <span class="n">epoch_acc</span>
+                <span class="n">best_model_wts</span> <span class="o">=</span> <span class="n">copy</span><span class="p">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">state_dict</span><span class="p">())</span>
+
+        <span class="k">print</span><span class="p">()</span>
+
+    <span class="n">time_elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">since</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Training complete in </span><span class="si">{</span><span class="n">time_elapsed</span> <span class="o">//</span> <span class="mi">60</span><span class="p">:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">m </span><span class="si">{</span><span class="n">time_elapsed</span> <span class="o">%</span> <span class="mi">60</span><span class="p">:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">s'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Best val Acc: </span><span class="si">{</span><span class="n">best_acc</span><span class="p">:</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+
+    <span class="c1"># load best model weights
+</span>    <span class="n">model</span><span class="p">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">best_model_wts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</code></pre></div></div>
+
+<p>We can now start tweaking hyperparameters and defining things like a loss function and scheduler to facilitate training.</p>
+
+<p>The optimizer implements a stochastic gradient descent optimazation algorithm. This aids in minimization of the loss function. We then have our loss function which is responsible for measuring how well the model’s predictions match the true values or labels of the training data. Lastly, we have our scheduler which is responsible for learning rate decay.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Hyperparameters
+# These were actually defined before we made the dataloaders, 
+# but I chose to add it here instead for readability.
+</span><span class="n">in_channel</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="mi">555</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">15</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># optimizer
+</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="p">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+<span class="c1"># loss function
+</span><span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+<span class="c1"># Decay LR by a factor of 0.1 every 7 epochs
+</span><span class="n">exp_lr_scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="p">.</span><span class="n">StepLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Start training!
+</span><span class="n">model</span><span class="p">.</span><span class="n">train</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> 
+                    <span class="n">exp_lr_scheduler</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="evaluating-the-model">Evaluating the Model</h3>
+
+<p>After the lengthy process of training, we can now start to evaluate our model. I used the same implementation for importing the training data for the test data. However, since these images don’t have an ID/label, I decided to label them with their corresponding index in the ‘sample.csv’ file. This will aid in making the final .csv for my predictions.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">TestDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_file</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">annotations</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
+        
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">annotations</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">annotations</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="mi">5</span><span class="p">:])</span>
+        
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">.</span><span class="n">convert</span><span class="p">(</span><span class="s">"RGB"</span><span class="p">)</span> <span class="c1"># some photos have the alpha channel
+</span>        
+        <span class="n">y_label</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">y_label</span><span class="p">)</span>
+    
+<span class="n">test_dataset</span> <span class="o">=</span> <span class="n">TestDataset</span><span class="p">(</span><span class="n">csv_file</span><span class="o">=</span><span class="s">'/workspace/birds/sample.csv'</span><span class="p">,</span>
+                       <span class="n">root_dir</span><span class="o">=</span><span class="s">'/workspace/birds-resized/test'</span><span class="p">,</span>
+                       <span class="n">transform</span><span class="o">=</span><span class="n">test_transform</span><span class="p">)</span>
+
+<span class="n">testing_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>I set the model to evalutation mode so that it wouldn’t modify the weights when going through the data. The way the following code works is that it concatenates the label and best prediction to a Pandas DataFrame. As I’ve discussed before, the label is just the index of the corresponding image in the ‘sample.csv’ file. Then, to find the model’s best prediction for that image, we get the output’s argmax, which is just the index of the maximum value of all the elements in the input. For example, if there 555 elements and the best prediction was 0.99 at index 305, then argmax would return 305. This translates to species number 305.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'label'</span><span class="p">,</span> <span class="s">'pred'</span><span class="p">])</span>
+<span class="n">model</span><span class="p">.</span><span class="nb">eval</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">testing_loader</span><span class="p">:</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'label'</span><span class="p">:</span> <span class="n">labels</span><span class="p">.</span><span class="n">cpu</span><span class="p">().</span><span class="n">numpy</span><span class="p">(),</span> <span class="s">'pred'</span><span class="p">:</span> <span class="n">pred</span><span class="p">.</span><span class="n">cpu</span><span class="p">().</span><span class="n">numpy</span><span class="p">()})</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">df2</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Output:
+
+     label pred
+0        0  305
+1        1  227
+2        2   70
+3        3  362
+4        4   40
+...    ...  ...
+9995  9995  368
+9996  9996  218
+9997  9997   42
+9998  9998   36
+9999  9999  215
+
+[10000 rows x 2 columns]
+</code></pre></div></div>
+
+<p>We’re nearly there! I then made another DataFrame to hold the final predictions. For the ‘path’ column, I took each path from ‘sample.csv’. As for the ‘class’ column, I used the corresponding ‘pred’ column from the DataFrame we created earlier.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">test_csv</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"/workspace/birds/sample.csv"</span><span class="p">)</span>
+<span class="n">res_csv</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'path'</span><span class="p">,</span> <span class="s">'class'</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">new_row</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'path'</span><span class="p">:</span> <span class="p">[</span><span class="n">test_csv</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="s">'class'</span><span class="p">:</span> <span class="p">[</span><span class="n">df</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]})</span>
+    <span class="n">res_csv</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">res_csv</span><span class="p">,</span> <span class="n">new_row</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                           path class
+0     test/ccd7fe22b2214123aa5c7501653741e8.jpg   305
+1     test/ae8d11baa5104860809d79ff626f7286.jpg   227
+2     test/374ff1843b4c4b32b8f4145ae17bace0.jpg    70
+3     test/df7f4ed304f6496c9dbf6350552b4858.jpg   362
+4     test/ba883a3b5b34446093dc98889b957258.jpg    40
+...                                         ...   ...
+9995  test/8e9ac4ac8d2940b182eb4f0e29e263b7.jpg   368
+9996  test/08ddc93924674259b7a318693369bd86.jpg   218
+9997  test/0f6d51c0a36b4251be04d3aa83bb4b3d.jpg    42
+9998  test/0e9d318a8738401090060740ef5182ea.jpg    36
+9999  test/852dbbe3a24841979abb7d31e8823897.jpg   215
+
+[10000 rows x 2 columns]
+</code></pre></div></div>
+
+<p>We now have our results and can export it to submit!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">compression_opts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">'zip'</span><span class="p">,</span>
+                        <span class="n">archive_name</span><span class="o">=</span><span class="s">'out.csv'</span><span class="p">)</span> 
+<span class="n">res_csv</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">'out.zip'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+          <span class="n">compression</span><span class="o">=</span><span class="n">compression_opts</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Contents of out.csv:
+
+path,class
+test/ccd7fe22b2214123aa5c7501653741e8.jpg,305
+test/ae8d11baa5104860809d79ff626f7286.jpg,227
+test/374ff1843b4c4b32b8f4145ae17bace0.jpg,70
+test/df7f4ed304f6496c9dbf6350552b4858.jpg,362
+test/ba883a3b5b34446093dc98889b957258.jpg,40
+...
+</code></pre></div></div>
+
+<h1 id="results">Results</h1>
+
+<h3 id="resnet152">ResNet152</h3>
+
+<p>The first model I trained was ResNet152. The hyperparmeters I used for this architecture were the following: 25 epochs, a step size of 10 on the scheduler, a learning rate of 1e-3, and a batch size of 64.</p>
+
+<div class="language-plaintext scroll-box highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Epoch 0/24
+----------
+train Loss: 6.0899 Acc: 0.0472
+val Loss: 5.5890 Acc: 0.1330
+
+Epoch 1/24
+----------
+train Loss: 4.5204 Acc: 0.2110
+val Loss: 3.3127 Acc: 0.3230
+
+Epoch 2/24
+----------
+train Loss: 2.7643 Acc: 0.4180
+val Loss: 2.0953 Acc: 0.5030
+
+Epoch 3/24
+----------
+train Loss: 1.8562 Acc: 0.5754
+val Loss: 1.4755 Acc: 0.6320
+
+Epoch 4/24
+----------
+train Loss: 1.3783 Acc: 0.6693
+val Loss: 1.1806 Acc: 0.6958
+
+Epoch 5/24
+----------
+train Loss: 1.0942 Acc: 0.7289
+val Loss: 0.9961 Acc: 0.7298
+
+Epoch 6/24
+----------
+train Loss: 0.8997 Acc: 0.7702
+val Loss: 0.8827 Acc: 0.7588
+
+Epoch 7/24
+----------
+train Loss: 0.7555 Acc: 0.8046
+val Loss: 0.8016 Acc: 0.7700
+
+Epoch 8/24
+----------
+train Loss: 0.6539 Acc: 0.8310
+val Loss: 0.7430 Acc: 0.7892
+
+Epoch 9/24
+----------
+train Loss: 0.5682 Acc: 0.8526
+val Loss: 0.6991 Acc: 0.7938
+
+Epoch 10/24
+----------
+train Loss: 0.4839 Acc: 0.8810
+val Loss: 0.6811 Acc: 0.8012
+
+Epoch 11/24
+----------
+train Loss: 0.4703 Acc: 0.8889
+val Loss: 0.6755 Acc: 0.8066
+
+Epoch 12/24
+----------
+train Loss: 0.4539 Acc: 0.8895
+val Loss: 0.6724 Acc: 0.8072
+
+Epoch 13/24
+----------
+train Loss: 0.4482 Acc: 0.8929
+val Loss: 0.6719 Acc: 0.8106
+
+Epoch 14/24
+----------
+train Loss: 0.4435 Acc: 0.8943
+val Loss: 0.6619 Acc: 0.8074
+
+Epoch 15/24
+----------
+train Loss: 0.4324 Acc: 0.8974
+val Loss: 0.6603 Acc: 0.8072
+
+Epoch 16/24
+----------
+train Loss: 0.4297 Acc: 0.8984
+val Loss: 0.6578 Acc: 0.8142
+
+Epoch 17/24
+----------
+train Loss: 0.4257 Acc: 0.8993
+val Loss: 0.6531 Acc: 0.8108
+
+Epoch 18/24
+----------
+train Loss: 0.4164 Acc: 0.8994
+val Loss: 0.6513 Acc: 0.8120
+
+Epoch 19/24
+----------
+train Loss: 0.4112 Acc: 0.9035
+val Loss: 0.6456 Acc: 0.8138
+
+Epoch 20/24
+----------
+train Loss: 0.4023 Acc: 0.9057
+val Loss: 0.6522 Acc: 0.8110
+
+Epoch 21/24
+----------
+train Loss: 0.4059 Acc: 0.9034
+val Loss: 0.6478 Acc: 0.8124
+
+Epoch 22/24
+----------
+train Loss: 0.4036 Acc: 0.9053
+val Loss: 0.6468 Acc: 0.8140
+
+Epoch 23/24
+----------
+train Loss: 0.4023 Acc: 0.9050
+val Loss: 0.6475 Acc: 0.8182
+
+Epoch 24/24
+----------
+train Loss: 0.4036 Acc: 0.9063
+val Loss: 0.6462 Acc: 0.8164
+
+Training complete in 255m 53s
+Best val Acc: 0.818200
+</code></pre></div></div>
+
+<p>This gave me some pretty good results with a final validation accuracy of 0.818200. We can see the model start to converge around epoch 10, as validation loss stays stagnant while training loss continues to increase ever so slightly with every epoch. This may indicate some overfitting to the training data.</p>
+
+<p><img src="\assets\images\ResNet152_Loss_Graph.png" alt="ResNet152: Training Loss vs. Validation Loss" class="center-image" /></p>
+
+<p>Evaluation using this model gave me a public score of 0.827 on the Kaggle competition.</p>
+
+<p><img src="\assets\images\ResNet_Score.png" alt="ResNet152: Training Loss vs. Validation Loss" class="center-image" /></p>
+
+<h3 id="efficientnetv2-l">EfficientNetV2-L</h3>
+
+<p>The second model I trained was EfficientNetV2-L. The hyperparameters I used for this architecture were the following: 15 epochs, a step size of 7 on the scheduler, a learning rate of 1e-3, and a batch size of 32.</p>
+
+<div class="language-plaintext scroll-box highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Epoch 0/14
+----------
+train Loss: 5.1449 Acc: 0.1331
+val Loss: 2.8316 Acc: 0.4956
+
+Epoch 1/14
+----------
+train Loss: 2.2729 Acc: 0.5194
+val Loss: 1.1910 Acc: 0.7328
+
+Epoch 2/14
+----------
+train Loss: 1.3353 Acc: 0.6832
+val Loss: 0.7842 Acc: 0.7998
+
+Epoch 3/14
+----------
+train Loss: 0.9672 Acc: 0.7576
+val Loss: 0.6170 Acc: 0.8362
+
+Epoch 4/14
+----------
+train Loss: 0.7723 Acc: 0.8015
+val Loss: 0.5320 Acc: 0.8520
+
+Epoch 5/14
+----------
+train Loss: 0.6494 Acc: 0.8297
+val Loss: 0.4755 Acc: 0.8634
+
+Epoch 6/14
+----------
+train Loss: 0.5550 Acc: 0.8500
+val Loss: 0.4409 Acc: 0.8702
+
+Epoch 7/14
+----------
+train Loss: 0.4754 Acc: 0.8761
+val Loss: 0.4262 Acc: 0.8748
+
+Epoch 8/14
+----------
+train Loss: 0.4611 Acc: 0.8819
+val Loss: 0.4131 Acc: 0.8796
+
+Epoch 9/14
+----------
+train Loss: 0.4570 Acc: 0.8821
+val Loss: 0.4079 Acc: 0.8792
+
+Epoch 10/14
+----------
+train Loss: 0.4386 Acc: 0.8864
+val Loss: 0.4115 Acc: 0.8824
+
+Epoch 11/14
+----------
+train Loss: 0.4391 Acc: 0.8869
+val Loss: 0.4001 Acc: 0.8822
+
+Epoch 12/14
+----------
+train Loss: 0.4296 Acc: 0.8890
+val Loss: 0.3984 Acc: 0.8846
+
+Epoch 13/14
+----------
+---------------------------------------------------------------------------
+KeyboardInterrupt
+...
+</code></pre></div></div>
+
+<p>These results were far much better than ResNet152. The trained EffNetV2 model had a final validation accuracy of 0.8846, which is a 0.0664 difference over ResNet! We can see that the model starts to converge around epoch 9-10, where training loss and validations seem to stagnate. Based on this data, it seems that the network is learning well and isn’t overfitting to the training data as much as the loss levels are around the same.</p>
+
+<p>The interesting part, though, was that EfficientNetV2-L took just as long to train 13 epochs as it did to train 25 epochs with ResNet. Doing a little research, it seems that ResNet152 has 60.2 million parameters while EfficientNetV2-L has 118.5 million parameters. Looking at the Medium variant of EfficientNetV2, it’s reported to have 54.1 million parameters. If we were to use that model instead, I think the performance would be as comparable to ResNet.</p>
+
+<p><img src="\assets\images\EfficientNetV2-L_Loss_Graph.png" alt="EfficientNetV2-L: Training Loss vs. Validation Loss" class="center-image" /></p>
+
+<p>Evaluation using this model gave me a public score of 0.88950 on the Kaggle competition. As of 3/14/2023, this model currently sits atop the leaderboards!</p>
+
+<p><img src="\assets\images\EffNetV2-L_Score.png" alt="EfficientNetV2-L: Kaggle Score" /></p>
+
+<p><img src="\assets\images\EffNetV2-L_Leaderboard.png" alt="EfficientNetV2-L: Leadboard Position" class="center-image" /></p>
+
+<h1 id="discussion">Discussion</h1>
+
+<h3 id="problems-encountered">Problems encountered</h3>
+
+<p>One of the first problems I encountered was getting the dataset to be in a usable state. Loading the data was straightforward, but during training, the notebook kernel would sometimes crash because of a tensor shape error. It took me some time to diagnose this, but it turns out some of the images had a fourth alpha channel. Splicing that channel off took care of the problem. Another problem I had with the data was splitting it into two parts: training and validation. Since we aren’t supplied with a validation set, I decided to use 5000 random images from the training set instead. However, using just the <code class="language-plaintext highlighter-rouge">random_split()</code> function wasn’t adequate enough because it wouldn’t allow me to apply different transformations to that validation set; it would use the training transformations for both. Thus, I made another wrapper Dataset class to help facilitate applying different transformations to the split dataset.</p>
+
+<p>Another problem I encountered was resource constraints. Kaggle allots you 30 hours of GPU time per week. I ended up exceeding this time limit experimenting with different models and parameters, prompting me to move to Google Colab. However, Colab wasn’t meant for long-term computing tasks like machine learning model training, so I was quickly limited there too. I ended up spending $10 renting an RTX 4090 on <a href="https://vast.ai/">vast.ai</a> to accelerate training times. Using a 4090 was much faster than the free tier GPUs on Kaggle and Colab.</p>
+
+<h3 id="next-steps">Next steps</h3>
+
+<p>One of the things I proposed to do for this project was real-time object-detection and classification using video input. I wanted to try out frameworks like YOLO, but like all things in life, time has been a major constraint. And since object-detection frameworks like YOLO require drawing ab bounding box around objects, doing this with over 40,000 images was too daunting of a task. This is definitely something I would like to dive into when I do have the time, though. Sites like <a href="https://roboflow.com/">Roboflow</a> use <a href="https://docs.roboflow.com/annotate">machine learning to make this bounding box operation streamlined</a>, which is especially useful for larger datasets.</p>
+
+<p>Something I also want to experiment with is data parallelism using multiple GPUs. When I was training using an RTX 4090 on <a href="https://vast.ai/">vast.ai</a>, I noticed the options to use up to 8+ GPUs. This made me curious about how much multiple GPUs would accelerate training time, especially with models like EfficientNetV2-L which has more than 100 million parameters.</p>
+
+<p>Lastly, I also would like to test even deeper netowrk architectures like VisionTransofrmer which has <a href="https://pytorch.org/vision/stable/models.html">633.5 million parameters and able to achieve 98.694 top 5 accuracy on ImageNet1k</a>. I tried to use this network model, but I kept running into VRAM errors, even with batch sizes as low as 8 or 4. If I had the resources, I would defintely like to test this.</p>
+
+<h3 id="novelty">Novelty</h3>
+
+<p>Some of the things I think made my approch novel was the use of different and deeper models. I noticed that in tutorial, architectures like ResNet18 were used. These are great for general use cases, but for bigger datasets like the one for this project, I was aiming to have one of the best model performances. I also thought that my short Python script for image resizing kept things fresh. Even though doing this augmentation would be much faster using PyTorch, I had the time to spare. Lastly, I think that my bird classifier webapp gave a sense of practicality as something similar could be used for other classification tasks.</p>
+
+
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="https://github.com/rsslramos/cse455-birds-classification">cse455-birds-classification</a> is maintained by <a href="https://github.com/rsslramos">rsslramos</a>.</span>
+        
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+      </footer>
+    </main>
+  </body>
+</html>
