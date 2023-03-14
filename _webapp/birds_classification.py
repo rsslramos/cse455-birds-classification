@@ -19,3 +19,4 @@ if upload_image is not None:
     st.write("Top 3 Predictions (name, score)")
     for i in predictions:
         st.write(i[0], ", ", i[1])
+        

@@ -1,19 +1,26 @@
 import os
+import streamlit as st
 import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 
 # Load the model
-model = torchvision.models.efficientnet_v2_l(weights='EfficientNet_V2_L_Weights.DEFAULT')
-num_features = model.classifier[1].in_features 
-model.classifier[1] = nn.Linear(num_features, 555)
 path = os.path.dirname(__file__)
-my_file = path + '/model_checkpoint_effnetv2.pt'
 device = torch.device('cpu')
-checkpoint = torch.load(my_file, map_location=device)
-model.load_state_dict(checkpoint['model_state_dict'])
-model.eval()
+
+@st.cache(hash_funcs={"MyUnhashableClass": lambda _: None})
+def load_model():
+    model = torchvision.models.efficientnet_v2_l(weights='EfficientNet_V2_L_Weights.DEFAULT')
+    num_features = model.classifier[1].in_features 
+    model.classifier[1] = nn.Linear(num_features, 555)
+    my_file = path + '/model_checkpoint_effnetv2.pt'
+    checkpoint = torch.load(my_file, map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model.eval()
+    return model
+
+model = load_model()
 
 # Define transformations
 transformations = transforms.Compose([
@@ -37,8 +44,3 @@ def predict(image):
     preds = torch.nn.functional.softmax(output, dim=1)[0]
     _, indices = torch.sort(output, descending=True)
     return [(bird_names[i], preds[i].item()) for i in indices[0][:3]]
-
-
-    
-
-

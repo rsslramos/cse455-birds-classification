@@ -3,6 +3,10 @@ layout: default
 title: Russel Ramos - CSE 455 Final Project
 ---
 
+## [Demo the app here!](https://twitter.com/gabefollower/status/1635771072749477888)
+{: .center-image }
+
+
 # Problem Description
 
 Just as humans have evolved into different species, birds have grown alongside them over millions of years. Adapting to changing environments and becoming one of the most diverse groups of animals on the planet, there are over 5,000 different species of birds. **The goal of this project is to train a machine learning model that can accurately predict the species of a birds based on its features present in an image.** Through this, I am hoping to make these majestic flying creatures seem a bit more familiar.
