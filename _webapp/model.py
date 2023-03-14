@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torchvision
@@ -7,7 +8,9 @@ import torchvision.transforms as transforms
 model = torchvision.models.efficientnet_v2_l(weights='EfficientNet_V2_L_Weights.DEFAULT')
 num_features = model.classifier[1].in_features 
 model.classifier[1] = nn.Linear(num_features, 555)
-checkpoint = torch.load('model_checkpoint_effnetv2.pt')
+path = os.path.dirname(__file__)
+my_file = path + '/model_checkpoint_effnetv2.pt'
+checkpoint = torch.load(my_file)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
