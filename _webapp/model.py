@@ -10,8 +10,9 @@ num_features = model.classifier[1].in_features
 model.classifier[1] = nn.Linear(num_features, 555)
 path = os.path.dirname(__file__)
 my_file = path + '/model_checkpoint_effnetv2.pt'
+device = torch.device('cpu')
 checkpoint = torch.load(my_file)
-model.load_state_dict(checkpoint['model_state_dict'], map_location=torch.device('cpu'))
+model.load_state_dict(checkpoint['model_state_dict'], map_location=device)
 model.eval()
 
 # Define transformations
@@ -28,6 +29,7 @@ bird_names = [line.strip() for line in open('names.txt')]
 # Predicts the top 3 birds from an image
 def predict(image):
     image_tensor = torch.unsqueeze(transformations(image), 0)
+    image_tensor = image_tensor.to(device)
 
     output = model(image_tensor)
 
