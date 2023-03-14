@@ -1,8 +1,16 @@
 import os
+import pickle
 import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
+
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
 
 # Load the model
 model = torchvision.models.efficientnet_v2_l(weights='EfficientNet_V2_L_Weights.DEFAULT')
@@ -11,7 +19,7 @@ model.classifier[1] = nn.Linear(num_features, 555)
 path = os.path.dirname(__file__)
 my_file = path + '/model_checkpoint_effnetv2.pt'
 device = torch.device('cpu')
-checkpoint = torch.load(my_file)
+checkpoint = CPU_Unpickler(my_file).load()
 model.load_state_dict(checkpoint['model_state_dict'], map_location=device)
 model.eval()
 
