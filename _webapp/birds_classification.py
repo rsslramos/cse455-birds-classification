@@ -16,6 +16,6 @@ if upload_image is not None:
 
     predictions = model.predict(image)
 
-    st.write("Top 5 Predictions (name, score)")
+    st.write("Top 3 Predictions (name, score)")
     for i in predictions:
         st.write(i[0], ", ", i[1])
