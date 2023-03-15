@@ -3,8 +3,7 @@ layout: default
 title: Russel Ramos - CSE 455 Final Project
 ---
 
-## [Demo the app here!](https://rsslramos-cse455-birds-class--webappbirds-classification-ka8cuc.streamlit.app/)
-{: .center-image }
+## [Demo the app here!](https://rsslramos-cse455-birds-class--webappbirds-classification-ka8cuc.streamlit.app/){:target="_blank"}
 
 # Problem Description
 
