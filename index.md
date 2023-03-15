@@ -3,7 +3,10 @@ layout: default
 title: Russel Ramos - CSE 455 Final Project
 ---
 
-## [Demo the app here!](https://rsslramos-cse455-birds-class--webappbirds-classification-ka8cuc.streamlit.app/){:target="_blank"}
+<h2 style="text-align: center"><a href="https://rsslramos-cse455-birds-class--webappbirds-classification-ka8cuc.streamlit.app/">Demo the app here!</a></h2>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wVQ93o_qVVM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+{: .center-image }
 
 # Problem Description
 
@@ -607,7 +610,7 @@ Another problem I encountered was resource constraints. Kaggle allots you 30 hou
 
 ### Next steps
 
-One of the things I proposed to do for this project was real-time object-detection and classification using video input. I wanted to try out frameworks like YOLO, but like all things in life, time has been a major constraint. And since object-detection frameworks like YOLO require drawing ab bounding box around objects, doing this with over 40,000 images was too daunting of a task. This is definitely something I would like to dive into when I do have the time, though. Sites like [Roboflow](https://roboflow.com/) use [machine learning to make this bounding box operation streamlined](https://docs.roboflow.com/annotate), which is especially useful for larger datasets. 
+One of the things I proposed to do for this project was real-time object-detection and classification using video input. I wanted to try out frameworks like YOLO, but like all things in life, time has been a major constraint. And since object-detection frameworks like YOLO require drawing a bounding box around objects, doing this with over 40,000 images was too daunting of a task. This is definitely something I would like to dive into when I do have the time, though. Sites like [Roboflow](https://roboflow.com/) use [machine learning to make this bounding box operation streamlined](https://docs.roboflow.com/annotate), which is especially useful for larger datasets. 
 
 Something I also want to experiment with is data parallelism using multiple GPUs. When I was training using an RTX 4090 on [vast.ai](https://vast.ai/), I noticed the options to use up to 8+ GPUs. This made me curious about how much multiple GPUs would accelerate training time, especially with models like EfficientNetV2-L which has more than 100 million parameters.
 

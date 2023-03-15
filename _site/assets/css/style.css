@@ -325,3 +325,5 @@ a:hover { text-decoration: underline; }
 .center-image { margin: 0 auto; display: block; }
 
 .scroll-box { height: 500px; overflow-y: scroll; }
+
+.center-text { text-align: center; }
