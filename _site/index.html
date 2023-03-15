@@ -25,7 +25,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="/assets/css/style.css?v=121414686e9a703e097cb2af12c40aa10ec5d196">
+    <link rel="stylesheet" href="/assets/css/style.css?v=98a33cc084e27e5602f75df53028840ec24cdbc6">
     <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
 
 <!-- Setup Google Analytics -->
@@ -167,7 +167,7 @@
 </code></pre></div></div>
 
 <p>At this point, we can now view our imported data. Here is a sample batch of 32 images. Notice the unusual colors which are a product of normalization.
-<img src="http://localhost:4000\assets\images\visualize-data.png" alt="Visualized Data" class="center-image" /></p>
+<img src="http://localhost:4000/assets/images/visualize-data.png" alt="Visualized Data" class="center-image" /></p>
 
 <h3 id="defining-the-model">Defining the Model</h3>
 
@@ -531,11 +531,11 @@ Best val Acc: 0.818200
 
 <p>This gave me some pretty good results with a final validation accuracy of 0.818200. We can see the model start to converge around epoch 10, as validation loss stays stagnant while training loss continues to increase ever so slightly with every epoch. This may indicate some overfitting to the training data.</p>
 
-<p><img src="http://localhost:4000\assets\images\ResNet152_Loss_Graph.png" alt="ResNet152: Training Loss vs. Validation Loss" class="center-image" /></p>
+<p><img src="http://localhost:4000/assets/images/ResNet152_Loss_Graph.png" alt="ResNet152: Training Loss vs. Validation Loss" class="center-image" /></p>
 
 <p>Evaluation using this model gave me a public score of 0.827 on the Kaggle competition.</p>
 
-<p><img src="http://localhost:4000\assets\images\ResNet_Score.png" alt="ResNet152: Score" class="center-image" /></p>
+<p><img src="http://localhost:4000/assets/images/ResNet_Score.png" alt="ResNet152: Score" class="center-image" /></p>
 
 <h3 id="efficientnetv2-l">EfficientNetV2-L</h3>
 
@@ -617,13 +617,13 @@ KeyboardInterrupt
 
 <p>The interesting part, though, was that EfficientNetV2-L took just as long to train 13 epochs as it did to train 25 epochs with ResNet. Doing a little research, it seems that ResNet152 has 60.2 million parameters while EfficientNetV2-L has 118.5 million parameters. Looking at the Medium variant of EfficientNetV2, it’s reported to have 54.1 million parameters. If we were to use that model instead, I think the performance would be as comparable to ResNet.</p>
 
-<p><img src="http://localhost:4000\assets\images\EfficientNetV2-L_Loss_Graph.png" alt="EfficientNetV2-L: Training Loss vs. Validation Loss" class="center-image" /></p>
+<p><img src="http://localhost:4000/assets/images/EfficientNetV2-L_Loss_Graph.png" alt="EfficientNetV2-L: Training Loss vs. Validation Loss" class="center-image" /></p>
 
 <p>Evaluation using this model gave me a public score of 0.88950 on the Kaggle competition. As of 3/14/2023, this model currently sits atop the leaderboards!</p>
 
-<p><img src="http://localhost:4000\assets\images\EffNetV2-L_Score.png" alt="EfficientNetV2-L: Kaggle Score" class="center-image" /></p>
+<p><img src="http://localhost:4000/assets/images/EffNetV2-L_Score.png" alt="EfficientNetV2-L: Kaggle Score" class="center-image" /></p>
 
-<p><img src="http://localhost:4000\assets\images\EffNetV2-L_Leaderboard.png" alt="EfficientNetV2-L: Leadboard Position" class="center-image" /></p>
+<p><img src="http://localhost:4000/assets/images/EffNetV2-L_Leaderboard.png" alt="EfficientNetV2-L: Leadboard Position" class="center-image" /></p>
 
 <h1 id="discussion">Discussion</h1>
 
