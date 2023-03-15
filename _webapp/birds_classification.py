@@ -6,7 +6,7 @@ import model
 st.title('Birds Birds Birds')
 
 # File uploader widget
-upload_image = st.file_uploader("Upload an image", type=['png', 'jpg'])
+upload_image = st.file_uploader("Upload an image", type=['png', 'jpg', 'jpeg'])
 
 if upload_image is not None:
     image = Image.open(upload_image)
