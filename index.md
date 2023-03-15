@@ -3,9 +3,8 @@ layout: default
 title: Russel Ramos - CSE 455 Final Project
 ---
 
-## [Demo the app here!](https://twitter.com/gabefollower/status/1635771072749477888)
+## [Demo the app here!](https://rsslramos-cse455-birds-class--webappbirds-classification-ka8cuc.streamlit.app/)
 {: .center-image }
-
 
 # Problem Description
 
@@ -124,7 +123,7 @@ dataset_sizes = {'train': len(train_loader.dataset), 'val': len(test_loader.data
 ```
 
 At this point, we can now view our imported data. Here is a sample batch of 32 images. Notice the unusual colors which are a product of normalization.
-![Visualized Data](\assets\images\visualize-data.png){: .center-image }
+<img src="{{ "\assets\images\visualize-data.png" | prepend: site.baseurl | prepend: site.url}}" alt="Visualized Data" />{: .center-image }
 
 ### Defining the Model
 
@@ -503,11 +502,11 @@ Best val Acc: 0.818200
 
 This gave me some pretty good results with a final validation accuracy of 0.818200. We can see the model start to converge around epoch 10, as validation loss stays stagnant while training loss continues to increase ever so slightly with every epoch. This may indicate some overfitting to the training data.
 
-![ResNet152: Training Loss vs. Validation Loss](\assets\images\ResNet152_Loss_Graph.png){: .center-image }
+<img src="{{ "\assets\images\ResNet152_Loss_Graph.png" | prepend: site.baseurl | prepend: site.url}}" alt="ResNet152: Training Loss vs. Validation Loss" />{: .center-image }
 
 Evaluation using this model gave me a public score of 0.827 on the Kaggle competition.
 
-![ResNet152: Training Loss vs. Validation Loss](\assets\images\ResNet_Score.png){: .center-image }
+<img src="{{ "\assets\images\ResNet_Score.png" | prepend: site.baseurl | prepend: site.url}}" alt="ResNet152: Score" />{: .center-image }
 
 ### EfficientNetV2-L
 
@@ -591,13 +590,13 @@ These results were far much better than ResNet152. The trained EffNetV2 model ha
 
 The interesting part, though, was that EfficientNetV2-L took just as long to train 13 epochs as it did to train 25 epochs with ResNet. Doing a little research, it seems that ResNet152 has 60.2 million parameters while EfficientNetV2-L has 118.5 million parameters. Looking at the Medium variant of EfficientNetV2, it's reported to have 54.1 million parameters. If we were to use that model instead, I think the performance would be as comparable to ResNet.
 
-![EfficientNetV2-L: Training Loss vs. Validation Loss](\assets\images\EfficientNetV2-L_Loss_Graph.png){: .center-image }
+<img src="{{ "\assets\images\EfficientNetV2-L_Loss_Graph.png" | prepend: site.baseurl | prepend: site.url}}" alt="EfficientNetV2-L: Training Loss vs. Validation Loss" />{: .center-image }
 
 Evaluation using this model gave me a public score of 0.88950 on the Kaggle competition. As of 3/14/2023, this model currently sits atop the leaderboards!
 
-![EfficientNetV2-L: Kaggle Score](\assets\images\EffNetV2-L_Score.png)
+<img src="{{ "\assets\images\EffNetV2-L_Score.png" | prepend: site.baseurl | prepend: site.url}}" alt="EfficientNetV2-L: Kaggle Score" />{: .center-image }
 
-![EfficientNetV2-L: Leadboard Position](\assets\images\EffNetV2-L_Leaderboard.png){: .center-image }
+<img src="{{ "\assets\images\EffNetV2-L_Leaderboard.png" | prepend: site.baseurl | prepend: site.url}}" alt="EfficientNetV2-L: Leadboard Position" />{: .center-image }
 
 # Discussion
 
